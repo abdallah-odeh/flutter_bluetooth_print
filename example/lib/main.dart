@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:blue_print_pos/blue_print_pos.dart';
 import 'package:blue_print_pos/models/models.dart';
 import 'package:blue_print_pos/receipt/receipt.dart';
@@ -333,12 +335,12 @@ class _MyAppState extends State<MyApp> {
         ],
       for (final item in info.items)
         <String>[
-          item.description,
-          item.quantity.toStringAsFixed(3),
-          item.price.toStringAsFixed(3),
-          item.discount.toStringAsFixed(3),
-          item.tax.toStringAsFixed(3),
           item.total.toStringAsFixed(3),
+          item.tax.toStringAsFixed(3),
+          item.discount.toStringAsFixed(3),
+          item.price.toStringAsFixed(3),
+          item.quantity.toStringAsFixed(3),
+          item.description,
         ],
     ]);
     //BYTES LENGTH: 70945
@@ -397,7 +399,9 @@ class _MyAppState extends State<MyApp> {
     // print('CONTENT: ${receiptText.content}');
 
     await _bluePrintPos.printReceiptText(receiptText,
-        duration: 1028, feedCount: 2, paperSize: PaperSize.mm80);
+        feedCount: Platform.isAndroid ? 0 : 2,
+        customWidth: Platform.isAndroid ? 840 : 0,
+        paperSize: PaperSize.mm80);
 
     return;
 
