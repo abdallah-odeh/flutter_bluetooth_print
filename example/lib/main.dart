@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:blue_print_pos/blue_print_pos.dart';
@@ -6,6 +7,7 @@ import 'package:blue_print_pos/receipt/receipt.dart';
 import 'package:blue_print_pos_example/receipt_info.dart';
 import 'package:esc_pos_utils_plus/esc_pos_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 void main() {
@@ -23,6 +25,8 @@ class _MyAppState extends State<MyApp> {
   BlueDevice? _selectedDevice;
   bool _isLoading = false;
   int _loadingAtIndex = -1;
+
+  Image? image;
 
   @override
   Widget build(BuildContext context) {
@@ -142,24 +146,28 @@ class _MyAppState extends State<MyApp> {
                         ],
                       ),
                     )
-                  : Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const <Widget>[
-                          Text(
-                            'Scan bluetooth device',
-                            style: TextStyle(fontSize: 24, color: Colors.blue),
-                          ),
-                          Text(
-                            'Press button scan',
-                            style: TextStyle(fontSize: 14, color: Colors.grey),
-                          ),
-                        ],
+                  : image ??
+                      Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const <Widget>[
+                            Text(
+                              'Scan bluetooth device',
+                              style:
+                                  TextStyle(fontSize: 24, color: Colors.blue),
+                            ),
+                            Text(
+                              'Press button scan',
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.grey),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: _isLoading ? null : _onScanPressed,
+          // onPressed: _isLoading ? null : _onScanPressed,
+          onPressed: _isLoading ? null : _onPrintReceipt,
           child: const Icon(Icons.search),
           backgroundColor: _isLoading ? Colors.grey : Colors.blue,
         ),
@@ -207,6 +215,23 @@ class _MyAppState extends State<MyApp> {
       }
       setState(() => _isLoading = false);
     });
+  }
+
+  Future<String> imageProviderToBase64(final ImageProvider provider) async {
+    switch (provider.runtimeType) {
+      case AssetImage:
+        final ByteData bytes =
+            await rootBundle.load((provider as AssetImage).assetName);
+        return base64.encode(Uint8List.view(bytes.buffer));
+      case FileImage:
+        final File imageFile = (provider as FileImage).file;
+        final List<int> imageBytes = imageFile.readAsBytesSync();
+        return base64Encode(imageBytes);
+      case NetworkImage:
+        throw Exception(
+            'You can\'t use addImage to your receipt with network images, instead use addNetworkImage');
+    }
+    return '';
   }
 
   Future<void> _onPrintReceipt() async {
@@ -396,7 +421,26 @@ class _MyAppState extends State<MyApp> {
       RowItem(text: 'الإجمالي'),
     ]);
 
+    final base64a =
+        await receiptText.imageProviderToBase64(AssetImage('assets/logo.jpg'));
+    final base64 = await receiptText.imageProviderToBase64(FileImage(File(
+        '/data/user/0/com.ayeee.blue_print_pos_example/files/rabbit_black.jpg')));
+
+    receiptText.addImage(base64a);
+    receiptText.addImage(base64);
+    receiptText
+        .addNetworkImage('https://tinypng.com/images/social/developer-api.jpg');
+
     // print('CONTENT: ${receiptText.content}');
+
+    final content = receiptText.content;
+    final data = await BluePrintPos.contentToImage(content: content);
+    setState(() => image = Image.memory(data));
+
+    print('ASSET BASE64 -> $base64a');
+    print('FILE BASE64 -> $base64b');
+
+    return;
 
     await _bluePrintPos.printReceiptText(receiptText,
         feedCount: Platform.isAndroid ? 0 : 2,

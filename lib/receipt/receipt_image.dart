@@ -30,3 +30,18 @@ class ReceiptImage extends BaseReceiptView {
     return CollectionStyle.textCenter;
   }
 }
+
+class ReceiptNetworkImage extends ReceiptImage {
+  ReceiptNetworkImage(
+    final String data, {
+    final int width = 120,
+    final ReceiptAlignment alignment = ReceiptAlignment.center,
+  }) : super(data, alignment: alignment, width: width);
+
+  @override
+  String get html => '''
+    <div class="$_alignmentStyleHTML">
+      <img src ="$data" width="$width"/>
+    </div>
+    ''';
+}

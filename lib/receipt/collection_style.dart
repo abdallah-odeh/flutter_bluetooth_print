@@ -101,6 +101,11 @@ class CollectionStyle {
             display: flex;
             align-items: stretch;
           }
+          .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+          }
       </style>
     ''';
   }

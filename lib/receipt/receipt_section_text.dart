@@ -1,7 +1,12 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:blue_print_pos/receipt/collection_style.dart';
 import 'package:blue_print_pos/receipt/receipt_image.dart';
 import 'package:blue_print_pos/receipt/receipt_row.dart';
 import 'package:blue_print_pos/receipt/receipt_table_view.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'receipt_alignment.dart';
 import 'receipt_line.dart';
@@ -108,6 +113,23 @@ ${CollectionStyle.all}
     _data += html;
   }
 
+  Future<String> imageProviderToBase64(final ImageProvider provider) async {
+    switch (provider.runtimeType) {
+      case AssetImage:
+        final ByteData bytes =
+            await rootBundle.load((provider as AssetImage).assetName);
+        return base64.encode(Uint8List.view(bytes.buffer));
+      case FileImage:
+        final File imageFile = (provider as FileImage).file;
+        final List<int> imageBytes = imageFile.readAsBytesSync();
+        return base64Encode(imageBytes);
+      case NetworkImage:
+        throw Exception(
+            'You can\'t use addImage to your receipt with network images, instead use addNetworkImage');
+    }
+    return '';
+  }
+
   void addImage(
     String base64, {
     int width = 120,
@@ -115,6 +137,19 @@ ${CollectionStyle.all}
   }) {
     final ReceiptImage image = ReceiptImage(
       base64,
+      width: width,
+      alignment: alignment,
+    );
+    _data += image.html;
+  }
+
+  void addNetworkImage(
+    String url, {
+    int width = 120,
+    ReceiptAlignment alignment = ReceiptAlignment.center,
+  }) {
+    final ReceiptNetworkImage image = ReceiptNetworkImage(
+      url,
       width: width,
       alignment: alignment,
     );
@@ -145,6 +180,12 @@ ${CollectionStyle.all}
   }
 
   void addRow(final List<RowItem> items) {
+    if (items.isEmpty) return;
+    if (items.length == 1) {
+      final first = items.first;
+      addText(first.text, style: first.type, size: first.size);
+      return;
+    }
     final left = items.first;
     final right = items.last;
     return addLeftRightText(

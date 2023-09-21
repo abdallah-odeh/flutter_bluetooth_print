@@ -34,14 +34,15 @@ class ReceiptTextLeftRight extends BaseReceiptView {
   @override
   String get html {
     return '''
-   <div style="width: 66%; float:left" class="${leftTextStyle.textSizeHtml} ${CollectionStyle.textRight}">
-       $leftText
-    </div>
-
-    <div style="width: 33%; float:right" class="${rightTextStyle.textSizeHtml} ${CollectionStyle.textRight}">
-       $rightText
-    </div>
-    <br>
+<div class="clearfix"> 
+  <div style="width: 66%; float:left" class="${leftTextStyle.textSizeHtml} ${CollectionStyle.textRight}">
+    $leftText
+  </div>
+  <div style="width: 33%; float:right" class="${rightTextStyle.textSizeHtml} ${CollectionStyle.textRight}">
+     $rightText
+  </div>
+  <br>
+</div>
   ''';
   }
 }
