@@ -21,10 +21,14 @@ class ReceiptSectionText {
 
   String _data = '';
 
+  var _htmlOverriden = false;
+
   /// Build a page from html, [CollectionStyle.all] is defined CSS inside html
   /// [_data] will collect all generated tag from model [ReceiptText],
   /// [ReceiptTextLeftRight] and [ReceiptLine]
   String get content {
+    if (_htmlOverriden) return _data;
+
     return '''
 <!DOCTYPE html>
 <html lang="en">
@@ -111,6 +115,12 @@ ${CollectionStyle.all}
 
   void addHtml(final String html) {
     _data += html;
+    //test to commit!!
+  }
+
+  void setHtml(final String html) {
+    _data = html;
+    _htmlOverriden = true;
   }
 
   Future<String> imageProviderToBase64(final ImageProvider provider) async {
