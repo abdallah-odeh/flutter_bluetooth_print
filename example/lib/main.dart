@@ -443,10 +443,10 @@ class _MyAppState extends State<MyApp> {
 
     // return;
 
-    for (var i = 0; i < 30; i++)
+    for (var i = 0; i < 100; i++)
       await _bluePrintPos.printBarcode(
-        Barcode.codabar('2100004'.split('').map((e) => int.parse(e)).toList()),
-        feedCount: Platform.isAndroid ? 0 : 2,
+        Barcode.code128('2100004'.split('').map((e) => int.parse(e)).toList()),
+        feedCount: 0,
       );
 
     return;

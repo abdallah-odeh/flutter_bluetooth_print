@@ -209,7 +209,7 @@ class BluePrintPos {
 
     final List<int> data = generator.barcode(
       barcode,
-      height: 90,
+      height: 88,
       width: 2,
       textPos: BarcodeText.above,
     );
@@ -217,7 +217,8 @@ class BluePrintPos {
     // Add ESC/POS commands to print text and barcode
     final List<int> printData = [
       ...data,
-      ...generator.feed(feedCount),
+      // ...generator.cut(),
+      ...generator.feed(0),
     ];
 
     return _handleBytes(printData);
