@@ -5,7 +5,7 @@ import 'package:blue_print_pos/blue_print_pos.dart';
 import 'package:blue_print_pos/models/models.dart';
 import 'package:blue_print_pos/receipt/receipt.dart';
 import 'package:blue_print_pos_example/receipt_info.dart';
-import 'package:esc_pos_utils_plus/esc_pos_utils.dart';
+import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -438,25 +438,25 @@ class _MyAppState extends State<MyApp> {
     setState(() => image = Image.memory(data));
 
     print('ASSET BASE64 -> $base64a');
-    print('FILE BASE64 -> $base64b');
+    // print('FILE BASE64 -> $base64b');
 
     return;
-
-    await _bluePrintPos.printReceiptText(receiptText,
-        feedCount: Platform.isAndroid ? 0 : 2,
-        customWidth: Platform.isAndroid ? 840 : 0,
-        paperSize: PaperSize.mm80);
-
-    return;
-
-    // /// Example for print QR
-    // await _bluePrintPos.printQR('www.google.com', size: 250);
-
-    // /// Text after QR
-    // final ReceiptSectionText receiptSecondText = ReceiptSectionText();
-    // receiptSecondText.addText('Powered by ayeee',
-    //     size: ReceiptTextSizeType.small);
-    // receiptSecondText.addSpacer();
-    // await _bluePrintPos.printReceiptText(receiptSecondText, feedCount: 1);
+    //
+    // await _bluePrintPos.printReceiptText(receiptText,
+    //     feedCount: Platform.isAndroid ? 0 : 2,
+    //     customWidth: Platform.isAndroid ? 840 : 0,
+    //     paperSize: PaperSize.mm80);
+    //
+    // return;
+    //
+    // // /// Example for print QR
+    // // await _bluePrintPos.printQR('www.google.com', size: 250);
+    //
+    // // /// Text after QR
+    // // final ReceiptSectionText receiptSecondText = ReceiptSectionText();
+    // // receiptSecondText.addText('Powered by ayeee',
+    // //     size: ReceiptTextSizeType.small);
+    // // receiptSecondText.addSpacer();
+    // // await _bluePrintPos.printReceiptText(receiptSecondText, feedCount: 1);
   }
 }
