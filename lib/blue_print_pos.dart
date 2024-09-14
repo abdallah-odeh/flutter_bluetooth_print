@@ -201,6 +201,8 @@ class BluePrintPos {
     int size = 120,
     int feedCount = 0,
     bool useCut = false,
+    final int width = 2,
+    final int height = 88,
   }) async {
     PaperSize paperSize = PaperSize.mm58;
     final CapabilityProfile profile = await CapabilityProfile.load();
@@ -209,8 +211,8 @@ class BluePrintPos {
 
     final List<int> data = generator.barcode(
       barcode,
-      height: 88,
-      width: 2,
+      height: height,
+      width: width,
       textPos: BarcodeText.above,
     );
 
