@@ -147,10 +147,10 @@ class _MyAppState extends State<MyApp> {
                       ),
                     )
                   : image ??
-                      Center(
+                      const Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const <Widget>[
+                          children: <Widget>[
                             Text(
                               'Scan bluetooth device',
                               style:
@@ -166,8 +166,8 @@ class _MyAppState extends State<MyApp> {
                       ),
         ),
         floatingActionButton: FloatingActionButton(
-          // onPressed: _isLoading ? null : _onScanPressed,
-          onPressed: _isLoading ? null : _onPrintReceipt,
+          onPressed: _isLoading ? null : _onScanPressed,
+          // onPressed: _isLoading ? null : _onPrintReceipt,
           child: const Icon(Icons.search),
           backgroundColor: _isLoading ? Colors.grey : Colors.blue,
         ),
@@ -178,6 +178,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> _onScanPressed() async {
     setState(() => _isLoading = true);
     _bluePrintPos.scan().then((List<BlueDevice> devices) {
+      print('FOUND DEVICES: ${devices.length}');
       if (devices.isNotEmpty) {
         setState(() {
           _blueDevices = devices;
@@ -421,13 +422,13 @@ class _MyAppState extends State<MyApp> {
       RowItem(text: 'الإجمالي'),
     ]);
 
-    final base64a =
-        await receiptText.imageProviderToBase64(AssetImage('assets/logo.jpg'));
-    final base64 = await receiptText.imageProviderToBase64(FileImage(File(
-        '/data/user/0/com.ayeee.blue_print_pos_example/files/rabbit_black.jpg')));
+    final base64a = await receiptText
+        .imageProviderToBase64(const AssetImage('assets/logo.jpg'));
+    // final base64 = await receiptText.imageProviderToBase64(FileImage(File(
+    //     '/data/user/0/com.ayeee.blue_print_pos_example/files/rabbit_black.jpg')));
 
     receiptText.addImage(base64a);
-    receiptText.addImage(base64);
+    // receiptText.addImage(base64);
     receiptText
         .addNetworkImage('https://tinypng.com/images/social/developer-api.jpg');
 
@@ -440,14 +441,15 @@ class _MyAppState extends State<MyApp> {
     print('ASSET BASE64 -> $base64a');
     // print('FILE BASE64 -> $base64b');
 
-    return;
-    //
-    // await _bluePrintPos.printReceiptText(receiptText,
-    //     feedCount: Platform.isAndroid ? 0 : 2,
-    //     customWidth: Platform.isAndroid ? 840 : 0,
-    //     paperSize: PaperSize.mm80);
-    //
     // return;
+
+    for (var i = 0; i < 30; i++)
+      await _bluePrintPos.printBarcode(
+        Barcode.codabar('2100004'.split('').map((e) => int.parse(e)).toList()),
+        feedCount: Platform.isAndroid ? 0 : 2,
+      );
+
+    return;
     //
     // // /// Example for print QR
     // // await _bluePrintPos.printQR('www.google.com', size: 250);

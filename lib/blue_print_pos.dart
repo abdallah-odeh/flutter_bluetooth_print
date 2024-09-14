@@ -137,8 +137,7 @@ class BluePrintPos {
       useRaster: useRaster,
       customWidth: customWidth,
     );
-    print('BYTES LENGTH: ${byteBuffer.length}');
-    _handleBytes(byteBuffer);
+    return _handleBytes(byteBuffer);
   }
 
   Future<void> _handleBytes(final List<int> bytes) async {
@@ -146,7 +145,6 @@ class BluePrintPos {
     if (bytes.length <= maxSize) return _printProcess(bytes);
     int i = 0;
     do {
-      print('PRINT FROM: $i TO ${min(i + maxSize, bytes.length)}');
       await _printProcess(bytes.sublist(i, min(i + maxSize, bytes.length)));
       i += maxSize;
     } while (i < bytes.length);
@@ -186,12 +184,46 @@ class BluePrintPos {
     bool useCut = false,
   }) async {
     final List<int> byteBuffer = await _getQRImage(data, size.toDouble());
-    printReceiptImage(
+    return printReceiptImage(
       byteBuffer,
       width: size,
       feedCount: feedCount,
       useCut: useCut,
     );
+  }
+
+  /// This method only for print QR, only pass value on parameter [data]
+  /// define [size] to size of QR, default value is 120
+  /// [feedCount] to create more space after printing process done
+  /// [useCut] to cut printing process
+  Future<void> printBarcode(
+    Barcode barcode, {
+    int size = 120,
+    int feedCount = 0,
+    bool useCut = false,
+  }) async {
+    PaperSize paperSize = PaperSize.mm58;
+    final CapabilityProfile profile = await CapabilityProfile.load();
+    final Generator generator = Generator(paperSize, profile);
+    // Create barcode data
+
+    final List<int> data = generator.barcode(
+      barcode,
+      height: 90,
+      width: 2,
+      textPos: BarcodeText.above,
+    );
+
+    // Add ESC/POS commands to print text and barcode
+    final List<int> printData = [
+      ...data,
+      ...generator.feed(feedCount),
+    ];
+
+    return _handleBytes(printData);
+
+    // Send print data to the printer
+    // bluetoothPrinter.writeBytes(Uint8List.fromList(printData));
   }
 
   /// Reusable method for print text, image or QR based value [byteBuffer]
@@ -294,6 +326,28 @@ class BluePrintPos {
           await image.toByteData(format: ImageByteFormat.png);
       assert(byteData != null);
       return byteData!.buffer.asUint8List();
+    } on Exception catch (exception) {
+      print('$runtimeType - $exception');
+      rethrow;
+    }
+  }
+
+  /// Handler to generate Barcode image from [text] and set the [size].
+  /// Using painter and convert to [Image] object and return as [Uint8List]
+  Future<Uint8List> _getBarcodeImage(String text, double size) async {
+    try {
+      final data = text.split('').map((e) => int.parse(e)).toList();
+      final barcode = Barcode.code128(data);
+      final Uint8List barcodeBytes = Uint8List.fromList(barcode.data);
+
+      final img.Image image = img.Image.fromBytes(
+        width: 300,
+        height: 100,
+        bytes: barcodeBytes.buffer,
+      );
+      final uint8List = image.buffer.asUint8List();
+      assert(uint8List != null);
+      return uint8List;
     } on Exception catch (exception) {
       print('$runtimeType - $exception');
       rethrow;
